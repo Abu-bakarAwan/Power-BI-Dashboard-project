@@ -1,0 +1,157 @@
+
+Total_revenue_formated = 
+FORMAT([Total Revenue%] / 1000000, "0.00") & "M"
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+ALL value = var maxv = MAXX(ALLSELECTED('Calendar Table'[Q-Year],'Calendar Table'[Quater]),[Total Revenue%])
+            VAR MINV = MINX(ALLSELECTED('Calendar Table'[Q-Year],'Calendar Table'[Quater]),[Total Revenue%])
+
+            VAR NE = IF ( maxv = [Total Revenue%] = BLANK() , IF(MINV = [Total Revenue%] = BLANK() , [Total Revenue%]))
+
+ RETURN 
+ NE
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+COGS% = sum(FactInternetSales[COGS])
+
+Gross Profit% = [Total Revenue%]- [COGS%]
+
+Net profit% = [Gross Profit%] - (SUM(FactInternetSales[other expences ]))
+
+p.n = DISTINCT(DimProduct[EnglishProductName])
+
+Total Revenue% = SUM(FactInternetSales[Total Revenue])
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+max value = var maxv = MAXX(ALLSELECTED('Calendar Table'[Q-Year],'Calendar Table'[Quater],'Calendar Table'[Year]),[Total Revenue%])
+
+ RETURN 
+ IF( maxv = [Total Revenue%], [Total Revenue%],BLANK())
+
+
+mIN value = var maxv = MINX(ALLSELECTED('Calendar Table'[Q-Year],'Calendar Table'[Quater],'Calendar Table'[Year]),[Total Revenue%])
+
+ RETURN 
+ IF( maxv = [Total Revenue%], [Total Revenue%],BLANK())
+
+--------------------------------------------------------------------------------------------------------------------------------------------------
+
+NonMaxMinRevenue = 
+VAR MaxV = MAXX(ALLSELECTED('Calendar Table'[Q-Year], 'Calendar Table'[Quater]), [Total Revenue%])
+VAR MinV = MINX(ALLSELECTED('Calendar Table'[Q-Year], 'Calendar Table'[Quater]), [Total Revenue%])
+RETURN
+IF(
+    ISINSCOPE('Calendar Table'[Quater]) && ISINSCOPE('Calendar Table'[Q-Year]),
+    IF(
+        [Total Revenue%] <> MaxV && [Total Revenue%] <> MinV && NOT ISBLANK([Total Revenue%]),
+        [Total Revenue%],
+        BLANK()
+    ),
+    BLANK()
+)
+
+------------------------------------------------------------------------------------------------------------------------------------------yoy-changes ----
+
+YoY % Change CoGS = 
+VAR CurrentYearValue = [COGS%]
+VAR PreviousYearValue = CALCULATE([COGS%], SAMEPERIODLASTYEAR('Calendar Table'[Date]))
+RETURN
+DIVIDE(CurrentYearValue - PreviousYearValue, PreviousYearValue, 0)
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+YoY % Change Gross profit = 
+VAR CurrentYearValue = [Gross Profit%]
+VAR PreviousYearValue = CALCULATE([Gross Profit%], SAMEPERIODLASTYEAR('Calendar Table'[Date]))
+RETURN
+DIVIDE(CurrentYearValue - PreviousYearValue, PreviousYearValue, 0)
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+YoY % Change Total Profit = 
+VAR CurrentYearValue = [Net profit%]
+VAR PreviousYearValue = CALCULATE([Net profit%], SAMEPERIODLASTYEAR('Calendar Table'[Date]))
+RETURN
+DIVIDE(CurrentYearValue - PreviousYearValue, PreviousYearValue, 0)
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+YoY % Change Total Revenue = 
+VAR CurrentYearValue = [Total Revenue%]
+VAR PreviousYearValue = CALCULATE([Total Revenue%], SAMEPERIODLASTYEAR('Calendar Table'[Date]))
+RETURN
+DIVIDE(CurrentYearValue - PreviousYearValue, PreviousYearValue, 0)
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+YOY% Changes net profit = 
+VAR SelectedYear = SELECTEDVALUE('Calendar Table'[Year])
+VAR num = FORMAT([YoY % Change Total Profit], "+0.0%;-0.0%;0.0%") & " vs. " & SelectedYear - 1
+VAR AvgYoY = 
+    AVERAGEX(
+        ALL('Calendar Table'[Year]),
+        [YoY % Change Total Profit]
+    )
+VAR AvgNum = FORMAT(AvgYoY, "+0.0%;-0.0%;0.0%") & " (Avg Growth)"
+RETURN
+IF(
+    ISBLANK(SelectedYear),
+    IF(ISBLANK(AvgYoY), "No Data", AvgNum),
+    num
+)
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+YOY% Changes total COGS = 
+VAR SelectedYear = SELECTEDVALUE('Calendar Table'[Year])
+VAR num = FORMAT([YoY % Change CoGS], "+0.0%;-0.0%;0.0%") & " vs. " & SelectedYear - 1
+VAR AvgYoY = 
+    AVERAGEX(
+        ALL('Calendar Table'[Year]),
+        [YoY % Change CoGS]
+    )
+VAR AvgNum = FORMAT(AvgYoY, "+0.0%;-0.0%;0.0%") & " (Avg Growth)"
+RETURN
+IF(
+    ISBLANK(SelectedYear),
+    IF(ISBLANK(AvgYoY), "No Data", AvgNum),
+    num
+)
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+YOY% Changes Total gross profit = 
+VAR SelectedYear = SELECTEDVALUE('Calendar Table'[Year])
+VAR num = FORMAT([YoY % Change Gross profit], "+0.0%;-0.0%;0.0%") & " vs. " & SelectedYear - 1
+VAR AvgYoY = 
+    AVERAGEX(
+        ALL('Calendar Table'[Year]),
+        [YoY % Change Gross profit]
+    )
+VAR AvgNum = FORMAT(AvgYoY, "+0.0%;-0.0%;0.0%") & " (Avg Growth)"
+RETURN
+IF(
+    ISBLANK(SelectedYear),
+    IF(ISBLANK(AvgYoY), "No Data", AvgNum),
+    num
+)
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+YOY% Changes total Revenue = 
+VAR SelectedYear = SELECTEDVALUE('Calendar Table'[Year])
+VAR num = FORMAT([YoY % Change Total Revenue], "+0.0%;-0.0%;0.0%") & " vs. " & SelectedYear - 1
+VAR AvgYoY = 
+    AVERAGEX(
+        ALL('Calendar Table'[Year]),
+        [YoY % Change Total Revenue]
+    )
+VAR AvgNum = FORMAT(AvgYoY, "+0.0%;-0.0%;0.0%") & " (Avg Growth)"
+RETURN
+IF(
+    ISBLANK(SelectedYear),
+    IF(ISBLANK(AvgYoY), "No Data", AvgNum),
+    num
+)
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
